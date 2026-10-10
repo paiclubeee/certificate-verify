@@ -5,18 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Certificate Verification — Programming and AI Club</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:system-ui,-apple-system,sans-serif; }
-  body {
-    background:#0a0a1f; color:#fff;
-    min-height:100vh; padding:20px;
-  }
+  body { background:#0a0a1f; color:#fff; min-height:100vh; padding:20px; }
   .container { max-width:900px; margin:0 auto; }
 
-  /* Header */
-  .header {
-    text-align:center; padding:30px 0 20px;
-  }
+  .header { text-align:center; padding:30px 0 20px; }
   .logo {
     width:70px; height:70px;
     background:linear-gradient(135deg,#dc2626,#f59e0b);
@@ -33,7 +28,6 @@
   }
   .header p { color:rgba(255,255,255,0.6); font-size:13px; }
 
-  /* Nav k tabs */
   .nav-tabs {
     display:flex; gap:8px; margin:24px 0;
     background:rgba(255,255,255,0.05);
@@ -54,7 +48,6 @@
     box-shadow:0 8px 20px rgba(220,38,38,0.35);
   }
 
-  /* Cards */
   .card {
     background:rgba(255,255,255,0.05);
     border:1px solid rgba(255,255,255,0.1);
@@ -64,15 +57,9 @@
     box-shadow:0 20px 60px rgba(0,0,0,0.4);
     margin-bottom:16px;
   }
-  .card h2 {
-    font-size:18px; font-weight:800; margin-bottom:8px;
-  }
-  .card p.sub {
-    color:rgba(255,255,255,0.6); font-size:13px;
-    margin-bottom:20px;
-  }
+  .card h2 { font-size:18px; font-weight:800; margin-bottom:8px; }
+  .card p.sub { color:rgba(255,255,255,0.6); font-size:13px; margin-bottom:20px; }
 
-  /* Inputs & Buttons */
   label {
     display:block; font-size:11px; font-weight:700;
     color:rgba(255,255,255,0.6);
@@ -117,12 +104,9 @@
     border:1.5px solid rgba(255,255,255,0.15);
     margin-top:10px;
   }
-  .btn-secondary:hover {
-    background:rgba(255,255,255,0.15);
-  }
+  .btn-secondary:hover { background:rgba(255,255,255,0.15); }
   button:disabled { opacity:0.5; cursor:not-allowed; }
 
-  /* Result box */
   #result, #adminResult {
     margin-top:20px; padding:20px;
     border-radius:14px; display:none;
@@ -160,7 +144,6 @@
   }
   .result-value { color:#fff; font-weight:600; word-break:break-word; }
 
-  /* File upload area */
   .upload-area {
     border:2px dashed rgba(220,38,38,0.5);
     border-radius:16px; padding:36px 20px;
@@ -177,7 +160,6 @@
   .upload-text { font-size:15px; font-weight:700; }
   .upload-hint { font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px; }
 
-  /* Table */
   .table-wrap {
     margin-top:16px; overflow-x:auto;
     border-radius:12px;
@@ -212,12 +194,33 @@
 
   .hidden { display:none !important; }
 
-  /* Footer */
   .footer {
     text-align:center; color:rgba(255,255,255,0.4);
     font-size:11px; margin-top:30px;
     padding-top:20px;
     border-top:1px solid rgba(255,255,255,0.1);
+  }
+
+  .progress-box {
+    margin-top:16px;
+    padding:16px;
+    background:rgba(6,182,212,0.08);
+    border:1px solid rgba(6,182,212,0.3);
+    border-radius:12px;
+    font-size:13px;
+  }
+  .progress-bar {
+    width:100%; height:6px;
+    background:rgba(255,255,255,0.1);
+    border-radius:3px;
+    overflow:hidden;
+    margin-top:10px;
+  }
+  .progress-fill {
+    height:100%;
+    background:linear-gradient(90deg,#06b6d4,#a855f7);
+    width:0%;
+    transition:width 0.3s;
   }
 
   @media (max-width:520px) {
@@ -236,16 +239,12 @@
     <p>Programming and AI Club of EEE<br>University of Asia Pacific</p>
   </div>
 
-  <!-- NAVIGATION TABS -->
   <div class="nav-tabs">
     <div class="nav-tab active" onclick="showTab('home')">🏠 Home</div>
     <div class="nav-tab" onclick="showTab('verify')">🔍 Verify</div>
     <div class="nav-tab" onclick="showTab('admin')">🔐 Admin</div>
   </div>
 
-  <!-- ============================================
-       HOME TAB
-       ============================================ -->
   <div id="tab-home" class="card">
     <h2>🎓 Welcome</h2>
     <p class="sub">Certificate verification system for the Programming and AI Club of EEE.</p>
@@ -259,9 +258,6 @@
     <button class="btn-secondary" onclick="showTab('admin')">🔐 Admin Login</button>
   </div>
 
-  <!-- ============================================
-       VERIFY TAB
-       ============================================ -->
   <div id="tab-verify" class="card hidden">
     <h2>🔍 Verify Certificate</h2>
     <p class="sub">আপনার সার্টিফিকেটের ID নিচে লিখুন</p>
@@ -274,12 +270,8 @@
     <div id="result"></div>
   </div>
 
-  <!-- ============================================
-       ADMIN TAB
-       ============================================ -->
   <div id="tab-admin">
 
-    <!-- Admin Login -->
     <div id="adminLogin" class="card">
       <h2>🔐 Admin Login</h2>
       <p class="sub">শুধুমাত্র ক্লাব অ্যাডমিনদের জন্য</p>
@@ -291,18 +283,34 @@
       <button class="btn-primary" onclick="adminLogin()">🔐 Login</button>
     </div>
 
-    <!-- Admin Panel (hidden until login) -->
     <div id="adminPanel" class="hidden">
 
       <div class="card">
         <h2>📤 Upload Certificate PDF</h2>
         <p class="sub">নতুন ইভেন্টের PDF আপলোড করুন। সিস্টেম অটো সব নাম ও ID পড়বে।</p>
 
+        <label>Event Name (সব সার্টিফিকেটে একই)</label>
+        <input type="text" id="eventName" placeholder="3-Days Hands-on Workshop on ..." value="ADVANCED POWER SYSTEM MODELING & PROTECTION: SIMULATION WITH ETAP">
+
+        <label>Date</label>
+        <input type="text" id="eventDate" placeholder="31 August, 07 September, 01 October 2026" value="31 August, 07 September, 01 October 2026">
+
+        <label>Organizer</label>
+        <input type="text" id="organizer" placeholder="Programming and AI Club of EEE, University of Asia Pacific" value="Programming and AI Club of EEE, University of Asia Pacific">
+
+        <label>ID Prefix</label>
+        <input type="text" id="idPrefix" placeholder="ETAP-2.0" value="ETAP-2.0">
+
         <div class="upload-area" id="adminUploadArea">
           <div class="upload-icon">📄</div>
           <div class="upload-text">PDF আপলোড করুন</div>
           <div class="upload-hint">অথবা এখানে ড্র্যাগ করে ছাড়ুন</div>
           <input type="file" id="adminPdf" accept="application/pdf" style="display:none">
+        </div>
+
+        <div id="progressBox" class="progress-box hidden">
+          <div id="progressText">⏳ প্রসেসিং...</div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
         </div>
 
         <div id="adminResult"></div>
@@ -329,9 +337,6 @@
 </div>
 
 <script>
-  // ============================================
-  // CONFIGURATION
-  // ============================================
   const ADMIN_PASSWORD = "pai-admin-2026";
   const JSON_FILE = "certificates.json";
 
@@ -340,23 +345,15 @@
 
   let allCertificates = [];
 
-  // ============================================
-  // TAB NAVIGATION
-  // ============================================
   function showTab(name) {
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     document.querySelector(`.nav-tab[onclick="showTab('${name}')"]`).classList.add('active');
-
     document.getElementById('tab-home').classList.add('hidden');
     document.getElementById('tab-verify').classList.add('hidden');
     document.getElementById('tab-admin').classList.add('hidden');
-
     document.getElementById('tab-' + name).classList.remove('hidden');
   }
 
-  // ============================================
-  // LOAD CERTIFICATES JSON
-  // ============================================
   async function loadCertificates() {
     try {
       const res = await fetch(JSON_FILE + "?t=" + Date.now());
@@ -370,9 +367,6 @@
     }
   }
 
-  // ============================================
-  // VERIFY FUNCTION
-  // ============================================
   async function verifyCert() {
     const input = document.getElementById('certId');
     const box = document.getElementById('result');
@@ -394,26 +388,11 @@
       box.className = 'valid show';
       box.innerHTML = `
         <div class="result-title">✅ VALID CERTIFICATE</div>
-        <div class="result-row">
-          <div class="result-label">Name</div>
-          <div class="result-value">${found.name}</div>
-        </div>
-        <div class="result-row">
-          <div class="result-label">Event</div>
-          <div class="result-value">${found.event}</div>
-        </div>
-        <div class="result-row">
-          <div class="result-label">Date</div>
-          <div class="result-value">${found.date}</div>
-        </div>
-        <div class="result-row">
-          <div class="result-label">Organizer</div>
-          <div class="result-value">${found.organizer}</div>
-        </div>
-        <div class="result-row">
-          <div class="result-label">Cert ID</div>
-          <div class="result-value">${found.id}</div>
-        </div>
+        <div class="result-row"><div class="result-label">Name</div><div class="result-value">${found.name}</div></div>
+        <div class="result-row"><div class="result-label">Event</div><div class="result-value">${found.event}</div></div>
+        <div class="result-row"><div class="result-label">Date</div><div class="result-value">${found.date}</div></div>
+        <div class="result-row"><div class="result-label">Organizer</div><div class="result-value">${found.organizer}</div></div>
+        <div class="result-row"><div class="result-label">Cert ID</div><div class="result-value">${found.id}</div></div>
       `;
     } else {
       box.className = 'invalid show';
@@ -431,9 +410,6 @@
     if (e.key === 'Enter') verifyCert();
   });
 
-  // ============================================
-  // ADMIN LOGIN
-  // ============================================
   function adminLogin() {
     const pass = document.getElementById('adminPass').value;
     if (pass === ADMIN_PASSWORD) {
@@ -454,14 +430,10 @@
     document.getElementById('adminResult').innerHTML = '';
   }
 
-  // ============================================
-  // ADMIN - PDF UPLOAD
-  // ============================================
   const uploadArea = document.getElementById('adminUploadArea');
   const pdfInput = document.getElementById('adminPdf');
 
   uploadArea.onclick = () => pdfInput.click();
-
   pdfInput.onchange = e => {
     const file = e.target.files[0];
     if (file) handleAdminPdf(file);
@@ -479,119 +451,119 @@
     if (file && file.type === 'application/pdf') handleAdminPdf(file);
   });
 
+  // ============================================
+  // MAIN PDF PROCESSING — FULLY AUTOMATIC
+  // ============================================
   async function handleAdminPdf(file) {
     const box = document.getElementById('adminResult');
-    box.className = 'loading show';
-    box.innerHTML = '⏳ PDF পড়া হচ্ছে...';
+    const progressBox = document.getElementById('progressBox');
+    const progressText = document.getElementById('progressText');
+    const progressFill = document.getElementById('progressFill');
+
+    box.className = '';
+    box.innerHTML = '';
+    progressBox.classList.remove('hidden');
+    progressText.textContent = '⏳ PDF পড়া হচ্ছে...';
+    progressFill.style.width = '5%';
 
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-      const newRecords = [];
+      const eventName = document.getElementById('eventName').value.trim();
+      const eventDate = document.getElementById('eventDate').value.trim();
+      const organizer = document.getElementById('organizer').value.trim();
+      const idPrefix = document.getElementById('idPrefix').value.trim();
 
-      for (let i = 1; i <= pdf.numPages; i++) {
+      const newRecords = [];
+      const totalPages = pdf.numPages;
+
+      for (let i = 1; i <= totalPages; i++) {
+        progressText.textContent = `⏳ পেজ ${i}/${totalPages} প্রসেস হচ্ছে...`;
+        progressFill.style.width = `${5 + (i / totalPages) * 85}%`;
+
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
         const items = content.items.map(item => item.str.trim()).filter(s => s);
 
+        // === নাম বের করা ===
         let name = null;
         for (let j = 0; j < items.length; j++) {
           if (items[j].includes('Certificate of Participation')) {
-            const after = items[j].replace('Certificate of Participation', '').trim();
-            if (after) name = after;
-            else if (j + 1 < items.length) name = items[j + 1];
+            for (let k = j + 1; k < Math.min(j + 5, items.length); k++) {
+              const candidate = items[k].trim();
+              if (candidate.startsWith('has successfully')) break;
+              if (candidate.length > 2 && !candidate.toLowerCase().includes('certificate')) {
+                name = candidate;
+                break;
+              }
+            }
             break;
           }
         }
         if (!name) name = `Unknown (Page ${i})`;
 
-        // ID template — Admin পরে এডিট করতে পারবে
-        const certId = `ETAP-2.0-${String(i).padStart(3, '0')}`;
+        // === ID তৈরি (auto) ===
+        const certId = `${idPrefix}-${String(i).padStart(3, '0')}`;
 
         newRecords.push({
           id: certId,
           name: name,
-          event: 'ADVANCED POWER SYSTEM MODELING & PROTECTION: SIMULATION WITH ETAP',
-          date: '31 August, 07 September, 01 October 2026',
-          organizer: 'Programming and AI Club of EEE, University of Asia Pacific',
+          event: eventName,
+          date: eventDate,
+          organizer: organizer,
           page: i
         });
       }
 
+      progressFill.style.width = '100%';
+      progressText.textContent = '✅ সম্পন্ন!';
+
+      setTimeout(() => progressBox.classList.add('hidden'), 800);
+
+      // === Save to database ===
+      await loadCertificates();
+      let added = 0;
+      newRecords.forEach(rec => {
+        if (!allCertificates.find(c => c.id === rec.id)) {
+          allCertificates.push(rec);
+          added++;
+        }
+      });
+      document.getElementById('totalCount').textContent = allCertificates.length;
+      renderAdminList();
+      showSaveReminder();
+
       box.className = 'valid show';
       box.innerHTML = `
-        <div class="result-title">✅ ${newRecords.length}টি সার্টিফিকেট পড়া হয়েছে</div>
+        <div class="result-title">✅ ${added}টি নতুন সার্টিফিকেট যোগ হয়েছে!</div>
         <p style="font-size:13px;margin-bottom:12px;">
-          নিচে নাম ও ID দেখুন। ভুল থাকলে এডিট করুন, তারপর "Save to Database" চাপুন।
+          এখন <b>"📥 certificates.json ডাউনলোড"</b> চেপে ফাইলটা ডাউনলোড করুন,
+          তারপর GitHub repo-তে আপলোড করুন।
         </p>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>ID</th>
-                <th>Name</th>
-              </tr>
-            </thead>
-            <tbody id="newRecordsTable"></tbody>
+            <thead><tr><th>#</th><th>ID</th><th>Name</th></tr></thead>
+            <tbody>
+              ${newRecords.map((r, idx) => `
+                <tr>
+                  <td>${idx + 1}</td>
+                  <td>${r.id}</td>
+                  <td>${r.name}</td>
+                </tr>
+              `).join('')}
+            </tbody>
           </table>
         </div>
-        <button class="btn-primary" onclick="saveRecords()">💾 Save to Database</button>
       `;
 
-      const tbody = document.getElementById('newRecordsTable');
-      tbody.innerHTML = newRecords.map((r, idx) => `
-        <tr>
-          <td>${idx + 1}</td>
-          <td><input type="text" value="${r.id}" data-idx="${idx}" data-field="id"></td>
-          <td><input type="text" value="${r.name}" data-idx="${idx}" data-field="name"></td>
-        </tr>
-      `).join('');
-
-      window._newRecords = newRecords;
-
     } catch (err) {
+      progressBox.classList.add('hidden');
       box.className = 'invalid show';
       box.innerHTML = '<div class="result-title">⚠️ Error</div>' + err.message;
     }
   }
 
-  async function saveRecords() {
-    const inputs = document.querySelectorAll('#newRecordsTable input');
-    inputs.forEach(input => {
-      const idx = parseInt(input.dataset.idx);
-      const field = input.dataset.field;
-      window._newRecords[idx][field] = input.value.trim();
-    });
-
-    await loadCertificates();
-
-    let added = 0;
-    window._newRecords.forEach(rec => {
-      if (!allCertificates.find(c => c.id === rec.id)) {
-        allCertificates.push(rec);
-        added++;
-      }
-    });
-
-    document.getElementById('totalCount').textContent = allCertificates.length;
-    renderAdminList();
-
-    const box = document.getElementById('adminResult');
-    box.className = 'valid show';
-    box.innerHTML = `
-      <div class="result-title">✅ ${added}টি নতুন সার্টিফিকেট যোগ হয়েছে!</div>
-      <p style="font-size:13px;">
-        এখন <b>"📥 certificates.json ডাউনলোড"</b> চেপে ফাইলটা ডাউনলোড করুন,
-        তারপর GitHub repo-তে আপলোড করুন।
-      </p>
-    `;
-  }
-
-  // ============================================
-  // ADMIN - RENDER LIST
-  // ============================================
   function renderAdminList() {
     const list = document.getElementById('adminList');
     if (allCertificates.length === 0) {
@@ -603,24 +575,82 @@
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>ID</th><th>Name</th></tr>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th style="width:100px;">Actions</th>
+            </tr>
           </thead>
           <tbody>
-            ${allCertificates.map(c => `
+            ${allCertificates.map((c, idx) => `
               <tr>
-                <td>${c.id}</td>
-                <td>${c.name}</td>
+                <td><input type="text" value="${c.id}" onchange="editRecord(${idx}, 'id', this.value)"></td>
+                <td><input type="text" value="${c.name}" onchange="editRecord(${idx}, 'name', this.value)"></td>
+                <td>
+                  <button onclick="deleteRecord(${idx})"
+                    style="background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.4);color:#fb7185;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;width:auto;margin:0;">
+                    🗑️ Delete
+                  </button>
+                </td>
               </tr>
             `).join('')}
           </tbody>
         </table>
       </div>
+      <button class="btn-secondary" onclick="deleteAll()"
+        style="background:rgba(244,63,94,0.15);border:1.5px solid rgba(244,63,94,0.4);color:#fb7185;margin-top:14px;">
+        🗑️ Delete All
+      </button>
     `;
   }
 
-  // ============================================
-  // DOWNLOAD JSON
-  // ============================================
+  function editRecord(idx, field, value) {
+    allCertificates[idx][field] = value.trim();
+    showSaveReminder();
+  }
+
+  function deleteRecord(idx) {
+    const rec = allCertificates[idx];
+    if (!confirm(`"${rec.name}" (${rec.id}) ডিলিট করতে চান?`)) return;
+    allCertificates.splice(idx, 1);
+    document.getElementById('totalCount').textContent = allCertificates.length;
+    renderAdminList();
+    showSaveReminder();
+  }
+
+  function deleteAll() {
+    if (allCertificates.length === 0) return alert('ডেটাবেস খালি!');
+    if (!confirm(`⚠️ ${allCertificates.length}টি সার্টিফিকেট সব ডিলিট হয়ে যাবে। আপনি নিশ্চিত?`)) return;
+    allCertificates = [];
+    document.getElementById('totalCount').textContent = '0';
+    renderAdminList();
+    showSaveReminder();
+  }
+
+  function showSaveReminder() {
+    let reminder = document.getElementById('saveReminder');
+    if (!reminder) {
+      reminder = document.createElement('div');
+      reminder.id = 'saveReminder';
+      reminder.style.cssText = `
+        background:rgba(245,158,11,0.15);
+        border:1.5px solid rgba(245,158,11,0.5);
+        color:#fbbf24;
+        padding:14px 18px;
+        border-radius:12px;
+        margin-top:14px;
+        font-size:13px;
+        font-weight:600;
+      `;
+      const list = document.getElementById('adminList');
+      list.parentNode.insertBefore(reminder, list.nextSibling);
+    }
+    reminder.innerHTML = `
+      ⚠️ <b>মনে রাখবেন!</b> পরিবর্তন সেভ করতে <b>"📥 certificates.json ডাউনলোড"</b>
+      চেপে ফাইলটা GitHub-এ আপলোড করতে হবে।
+    `;
+  }
+
   function downloadJson() {
     const blob = new Blob(
       [JSON.stringify(allCertificates, null, 2)],
@@ -632,11 +662,10 @@
     a.download = 'certificates.json';
     a.click();
     URL.revokeObjectURL(url);
+    const reminder = document.getElementById('saveReminder');
+    if (reminder) reminder.remove();
   }
 
-  // ============================================
-  // URL PARAMS (QR auto-verify)
-  // ============================================
   const params = new URLSearchParams(window.location.search);
   const urlId = params.get('id');
   if (urlId) {
