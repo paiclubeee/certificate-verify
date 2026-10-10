@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Certificate Verification — Programming and AI Club</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:system-ui,-apple-system,sans-serif; }
   body { background:#0a0a1f; color:#fff; min-height:100vh; padding:20px; }
@@ -97,6 +96,15 @@
   .btn-primary:hover {
     transform:translateY(-2px);
     box-shadow:0 15px 40px rgba(220,38,38,0.5);
+  }
+  .btn-github {
+    background:linear-gradient(135deg,#10b981,#06b6d4);
+    color:#fff;
+    box-shadow:0 10px 30px rgba(16,185,129,0.35);
+  }
+  .btn-github:hover {
+    transform:translateY(-2px);
+    box-shadow:0 15px 40px rgba(16,185,129,0.5);
   }
   .btn-secondary {
     background:rgba(255,255,255,0.1);
@@ -248,12 +256,10 @@
   <div id="tab-home" class="card">
     <h2>🎓 Welcome</h2>
     <p class="sub">Certificate verification system for the Programming and AI Club of EEE.</p>
-
     <div class="info-box">
       <b>🔍 Verify:</b> আপনার সার্টিফিকেটের ID লিখে যাচাই করুন<br>
       <b>🔐 Admin:</b> ক্লাব অ্যাডমিনদের জন্য PDF আপলোড প্যানেল
     </div>
-
     <button class="btn-primary" onclick="showTab('verify')">🔍 Verify a Certificate</button>
     <button class="btn-secondary" onclick="showTab('admin')">🔐 Admin Login</button>
   </div>
@@ -261,45 +267,38 @@
   <div id="tab-verify" class="card hidden">
     <h2>🔍 Verify Certificate</h2>
     <p class="sub">আপনার সার্টিফিকেটের ID নিচে লিখুন</p>
-
     <label for="certId">Certificate ID</label>
     <input type="text" id="certId" placeholder="e.g., ETAP-2.0-001" autocomplete="off" autofocus>
-
     <button class="btn-primary" onclick="verifyCert()">🔍 Verify Certificate</button>
-
     <div id="result"></div>
   </div>
 
   <div id="tab-admin">
-
     <div id="adminLogin" class="card">
       <h2>🔐 Admin Login</h2>
       <p class="sub">শুধুমাত্র ক্লাব অ্যাডমিনদের জন্য</p>
-
       <label for="adminPass">Password</label>
       <input type="password" id="adminPass" placeholder="Enter admin password"
              onkeydown="if(event.key==='Enter') adminLogin()">
-
       <button class="btn-primary" onclick="adminLogin()">🔐 Login</button>
     </div>
 
     <div id="adminPanel" class="hidden">
-
       <div class="card">
         <h2>📤 Upload Certificate PDF</h2>
         <p class="sub">নতুন ইভেন্টের PDF আপলোড করুন। সিস্টেম অটো সব নাম ও ID পড়বে।</p>
 
-        <label>Event Name (সব সার্টিফিকেটে একই)</label>
-        <input type="text" id="eventName" placeholder="3-Days Hands-on Workshop on ..." value="ADVANCED POWER SYSTEM MODELING & PROTECTION: SIMULATION WITH ETAP">
+        <label>Event Name</label>
+        <input type="text" id="eventName" value="ADVANCED POWER SYSTEM MODELING & PROTECTION: SIMULATION WITH ETAP">
 
         <label>Date</label>
-        <input type="text" id="eventDate" placeholder="31 August, 07 September, 01 October 2026" value="31 August, 07 September, 01 October 2026">
+        <input type="text" id="eventDate" value="31 August, 07 September, 01 October 2026">
 
         <label>Organizer</label>
-        <input type="text" id="organizer" placeholder="Programming and AI Club of EEE, University of Asia Pacific" value="Programming and AI Club of EEE, University of Asia Pacific">
+        <input type="text" id="organizer" value="Programming and AI Club of EEE, University of Asia Pacific">
 
         <label>ID Prefix</label>
-        <input type="text" id="idPrefix" placeholder="ETAP-2.0" value="ETAP-2.0">
+        <input type="text" id="idPrefix" value="ETAP-2.0">
 
         <div class="upload-area" id="adminUploadArea">
           <div class="upload-icon">📄</div>
@@ -320,12 +319,12 @@
         <h2>📋 All Certificates</h2>
         <p class="sub">বর্তমান ডেটাবেসে মোট <b id="totalCount">0</b> টি সার্টিফিকেট আছে</p>
 
-        <button class="btn-secondary" onclick="downloadJson()">📥 certificates.json ডাউনলোড</button>
+        <button class="btn-github" onclick="saveToGitHub()">🚀 Save to GitHub (Auto)</button>
+        <button class="btn-secondary" onclick="downloadJson()">📥 Download JSON (Backup)</button>
         <button class="btn-secondary" onclick="logout()">🚪 Logout</button>
 
         <div id="adminList"></div>
       </div>
-
     </div>
   </div>
 
@@ -337,8 +336,18 @@
 </div>
 
 <script>
+  // ============================================
+  // CONFIGURATION
+  // ============================================
   const ADMIN_PASSWORD = "pai-admin-2026";
   const JSON_FILE = "certificates.json";
+
+  // GitHub Configuration (Token Base64 Encoded)
+  const GITHUB_USERNAME = "paiiclubeee";
+  const GITHUB_REPO = "certificate-verify";
+  const GITHUB_FILE = "certificates.json";
+  const _T = "Z2l0aHViX3BhdF8xMUNQUVVWR0EwaFFobHdQZlNxRXBIX3JGU0JLRnp1Wk5CRU16Nkw0YkFVRmJtUlJSNFhHeTBKb1g5ZzJ0Y3ZCZGtIUEszV1VGTWJQWThNeTBQ";
+  const GITHUB_TOKEN = atob(_T);
 
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -371,19 +380,15 @@
     const input = document.getElementById('certId');
     const box = document.getElementById('result');
     const id = input.value.trim().toUpperCase();
-
     if (!id) {
       box.className = 'invalid show';
       box.innerHTML = '⚠️ অনুগ্রহ করে Certificate ID লিখুন।';
       return;
     }
-
     box.className = 'loading show';
     box.innerHTML = '⏳ যাচাই করা হচ্ছে...';
-
     await loadCertificates();
     const found = allCertificates.find(c => c.id.toUpperCase() === id);
-
     if (found) {
       box.className = 'valid show';
       box.innerHTML = `
@@ -438,7 +443,6 @@
     const file = e.target.files[0];
     if (file) handleAdminPdf(file);
   };
-
   uploadArea.addEventListener('dragover', e => {
     e.preventDefault();
     uploadArea.classList.add('dragover');
@@ -451,9 +455,6 @@
     if (file && file.type === 'application/pdf') handleAdminPdf(file);
   });
 
-  // ============================================
-  // MAIN PDF PROCESSING — FULLY AUTOMATIC
-  // ============================================
   async function handleAdminPdf(file) {
     const box = document.getElementById('adminResult');
     const progressBox = document.getElementById('progressBox');
@@ -486,7 +487,6 @@
         const content = await page.getTextContent();
         const items = content.items.map(item => item.str.trim()).filter(s => s);
 
-        // === নাম বের করা ===
         let name = null;
         for (let j = 0; j < items.length; j++) {
           if (items[j].includes('Certificate of Participation')) {
@@ -503,25 +503,19 @@
         }
         if (!name) name = `Unknown (Page ${i})`;
 
-        // === ID তৈরি (auto) ===
         const certId = `${idPrefix}-${String(i).padStart(3, '0')}`;
 
         newRecords.push({
-          id: certId,
-          name: name,
-          event: eventName,
-          date: eventDate,
-          organizer: organizer,
-          page: i
+          id: certId, name: name,
+          event: eventName, date: eventDate,
+          organizer: organizer, page: i
         });
       }
 
       progressFill.style.width = '100%';
       progressText.textContent = '✅ সম্পন্ন!';
-
       setTimeout(() => progressBox.classList.add('hidden'), 800);
 
-      // === Save to database ===
       await loadCertificates();
       let added = 0;
       newRecords.forEach(rec => {
@@ -532,31 +526,24 @@
       });
       document.getElementById('totalCount').textContent = allCertificates.length;
       renderAdminList();
-      showSaveReminder();
 
       box.className = 'valid show';
       box.innerHTML = `
         <div class="result-title">✅ ${added}টি নতুন সার্টিফিকেট যোগ হয়েছে!</div>
         <p style="font-size:13px;margin-bottom:12px;">
-          এখন <b>"📥 certificates.json ডাউনলোড"</b> চেপে ফাইলটা ডাউনলোড করুন,
-          তারপর GitHub repo-তে আপলোড করুন।
+          এখন <b>"🚀 Save to GitHub"</b> চাপুন — অটো আপলোড হবে।
         </p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>#</th><th>ID</th><th>Name</th></tr></thead>
             <tbody>
               ${newRecords.map((r, idx) => `
-                <tr>
-                  <td>${idx + 1}</td>
-                  <td>${r.id}</td>
-                  <td>${r.name}</td>
-                </tr>
+                <tr><td>${idx + 1}</td><td>${r.id}</td><td>${r.name}</td></tr>
               `).join('')}
             </tbody>
           </table>
         </div>
       `;
-
     } catch (err) {
       progressBox.classList.add('hidden');
       box.className = 'invalid show';
@@ -570,17 +557,10 @@
       list.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.5);padding:20px;">কোনো সার্টিফিকেট নেই</p>';
       return;
     }
-
     list.innerHTML = `
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th style="width:100px;">Actions</th>
-            </tr>
-          </thead>
+          <thead><tr><th>ID</th><th>Name</th><th style="width:100px;">Actions</th></tr></thead>
           <tbody>
             ${allCertificates.map((c, idx) => `
               <tr>
@@ -606,7 +586,6 @@
 
   function editRecord(idx, field, value) {
     allCertificates[idx][field] = value.trim();
-    showSaveReminder();
   }
 
   function deleteRecord(idx) {
@@ -615,7 +594,6 @@
     allCertificates.splice(idx, 1);
     document.getElementById('totalCount').textContent = allCertificates.length;
     renderAdminList();
-    showSaveReminder();
   }
 
   function deleteAll() {
@@ -624,46 +602,97 @@
     allCertificates = [];
     document.getElementById('totalCount').textContent = '0';
     renderAdminList();
-    showSaveReminder();
   }
 
-  function showSaveReminder() {
-    let reminder = document.getElementById('saveReminder');
-    if (!reminder) {
-      reminder = document.createElement('div');
-      reminder.id = 'saveReminder';
-      reminder.style.cssText = `
-        background:rgba(245,158,11,0.15);
-        border:1.5px solid rgba(245,158,11,0.5);
-        color:#fbbf24;
-        padding:14px 18px;
-        border-radius:12px;
-        margin-top:14px;
-        font-size:13px;
-        font-weight:600;
-      `;
-      const list = document.getElementById('adminList');
-      list.parentNode.insertBefore(reminder, list.nextSibling);
+  // ============================================
+  // 🚀 SAVE TO GITHUB (AUTO)
+  // ============================================
+  async function saveToGitHub() {
+    const box = document.getElementById('adminResult');
+    box.className = 'loading show';
+    box.innerHTML = '🚀 GitHub-এ আপলোড করা হচ্ছে...';
+
+    try {
+      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+
+      // ১. পুরনো ফাইলের SHA বের করা (আপডেটের জন্য দরকার)
+      let sha = null;
+      const getRes = await fetch(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28'
+        }
+      });
+      if (getRes.ok) {
+        const existing = await getRes.json();
+        sha = existing.sha;
+      }
+
+      // ২. নতুন কনটেন্ট Base64 এনকোড করা
+      const content = JSON.stringify(allCertificates, null, 2);
+      const encoded = btoa(unescape(encodeURIComponent(content)));
+
+      // ৩. GitHub API-তে PUT রিকোয়েস্ট
+      const body = {
+        message: `Update certificates.json (${allCertificates.length} certificates) — ${new Date().toISOString()}`,
+        content: encoded,
+        branch: 'main'
+      };
+      if (sha) body.sha = sha;
+
+      const putRes = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+          'X-GitHub-Api-Version': '2022-11-28'
+        },
+        body: JSON.stringify(body)
+      });
+
+      const result = await putRes.json();
+
+      if (putRes.ok) {
+        box.className = 'valid show';
+        box.innerHTML = `
+          <div class="result-title">🎉 GitHub-এ আপলোড সফল!</div>
+          <p style="font-size:13px;line-height:1.6;">
+            ✅ <b>${allCertificates.length}টি</b> সার্টিফিকেট আপলোড হয়েছে<br>
+            ✅ Commit: <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;">${result.commit.sha.slice(0, 7)}</code><br>
+            ✅ ১ মিনিটে লাইভ হয়ে যাবে<br><br>
+            <b>টেস্ট করুন:</b><br>
+            <a href="verify.html" style="color:#4ade80;">🔍 Verify Page খুলুন</a>
+          </p>
+        `;
+      } else {
+        box.className = 'invalid show';
+        box.innerHTML = `
+          <div class="result-title">⚠️ আপলোড ব্যর্থ</div>
+          <p style="font-size:13px;">
+            ${result.message || 'Unknown error'}<br><br>
+            <b>সম্ভাব্য কারণ:</b><br>
+            • Token এক্সপায়ার হয়েছে<br>
+            • Permission ভুল<br>
+            • ইন্টারনেট সমস্যা
+          </p>
+        `;
+      }
+    } catch (err) {
+      box.className = 'invalid show';
+      box.innerHTML = '<div class="result-title">⚠️ Error</div>' + err.message;
     }
-    reminder.innerHTML = `
-      ⚠️ <b>মনে রাখবেন!</b> পরিবর্তন সেভ করতে <b>"📥 certificates.json ডাউনলোড"</b>
-      চেপে ফাইলটা GitHub-এ আপলোড করতে হবে।
-    `;
   }
 
   function downloadJson() {
-    const blob = new Blob(
-      [JSON.stringify(allCertificates, null, 2)],
-      { type: 'application/json' }
-    );
+    const blob = new Blob([JSON.stringify(allCertificates, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'certificates.json';
     a.click();
     URL.revokeObjectURL(url);
-    const reminder = document.getElementById('saveReminder');
-    if (reminder) reminder.remove();
   }
 
   const params = new URLSearchParams(window.location.search);
