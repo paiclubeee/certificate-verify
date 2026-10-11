@@ -165,12 +165,11 @@
   const ADMIN_PASSWORD = "pai-admin-2026";
   const JSON_FILE = "certificates.json";
 
-  // GitHub Configuration
+  // GitHub Configuration (direct token with trim to avoid auth issues)
   const GITHUB_USERNAME = "paiclubeee";
   const GITHUB_REPO = "certificate-verify";
   const GITHUB_FILE = "certificates.json";
-  const _T = "Z2l0aHViX3BhdF8xMUNQUVVWR0EwejVoVzEySGdLZFpKX1JGTmZSa2EwV3o1cFkyUzl6bzhmdWNxTDNCNjJrbXRQanhIU1lsMEVQQmNBWjRSRVVCMnRtbkplSGVm";
-  const GITHUB_TOKEN = atob(_T);
+  const GITHUB_TOKEN = "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".trim();
 
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -227,7 +226,7 @@
       box.innerHTML = `
         <div class="result-title">❌ INVALID</div>
         <p style="font-size:14px;line-height:1.6;">
-          ID <b>${id}</b> আমাদের ডেটাবেসে নেই।<br>
+          ID <b>${id}</b> আমাদের ডেটাবেসে নেই。<br>
           <small style="opacity:0.7;">এই সার্টিফিকেটটি ভুয়া হতে পারে।</small>
         </p>
       `;
@@ -361,7 +360,7 @@
             <thead><tr><th>#</th><th>ID</th><th>Name</th></tr></thead>
             <tbody>
               ${newRecords.map((r, idx) => `
-                <tr><td>${idx + 1}</td><td>${r.id}</td><td>${r.name}</td></tr>
+                <tr><td>\${idx + 1}</td><td>${r.id}</td><td>${r.name}</td></tr>
               `).join('')}
             </tbody>
           </table>
@@ -390,7 +389,7 @@
                 <td><input type="text" value="${c.id}" onchange="editRecord(${idx}, 'id', this.value)"></td>
                 <td><input type="text" value="${c.name}" onchange="editRecord(${idx}, 'name', this.value)"></td>
                 <td>
-                  <button onclick="deleteRecord(${idx})"
+                  <button onclick="deleteRecord(\${idx})"
                     style="background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.4);color:#fb7185;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;width:auto;margin:0;">
                     🗑️ Delete
                   </button>
